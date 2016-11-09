@@ -55,7 +55,7 @@ var User = sequelizeConfig.define('users', {
 
 module.exports = {
 
-  register: function (req, res, next){
+  postRegister: function (req, res, next){
     
     var bodyUser = {
       username  : req.body.username,
@@ -143,6 +143,8 @@ module.exports = {
 				var obj = '{'
 	       		+'"id":"' + result.id + '",'
 	       		+'"username":"' + result.username + '",'
+            +'"active":"' + result.active + '",'
+            +'"isAdmin":"' + result.isAdmin + '",'
 	       		+'"token":"' + token + '"'
 	       		+'}';
 
@@ -163,7 +165,7 @@ module.exports = {
 	},
 
 
-  activateUser: function (req, res, next){
+  postActivateUser: function (req, res, next){
     
 
     var ids = req.body.ids;
@@ -221,10 +223,169 @@ module.exports = {
               message: 'No token provided.' 
           });
         }
+  
+  },
+
+
+  getAllUsers: function (req, res, next){
+
+    var page = req.param("page");
+    var perPage = req.param("perPage");
+    var reqToken = req.get("token");
     
-      
+    if (reqToken) {
+          // verifies secret and checks exp
+            jwt.verify(reqToken,'superSecret', function(err, decoded) {      
+              if (err) {
+                return res.json({ success: false, message: 'Failed to authenticate token.' });    
+              } else {
+             
+                  ///test the connection with the data base
+                sequelizeConfig.authenticate() .then(function () {
+                
+                  User.findAndCountAll({
+
+                      limit : parseInt(perPage),
+                      offset : parseInt(page) 
+
+                    }).then(function(result){
+
+                      res.send(JSON.parse(JSON.stringify(result)));
+
+                  }).catch(function (err) {
+                      var obj = '{"error": {"message":"Invalid Credentials", "code":"400" }}';
+                      res.status(400);
+                      res.send(JSON.parse(obj));
+                  });
+
+              }).catch(function (err) {
+                
+                var obj = '{"error": {"message":"Database connection not Found"}}';
+                    res.send(JSON.parse(obj));
+              
+              }).done();
+
+                }
+            });
+
+        } else {
+
+          return res.status(403).send({ 
+              success: false, 
+              message: 'No token provided.' 
+          });
+        }
+
+  },
+
+  getAllEnabledUsers: function (req, res, next){
+
+    var page = req.param("page");
+    var perPage = req.param("perPage");
+    var reqToken = req.get("token");
+    
   
+    if (reqToken) {
+          // verifies secret and checks exp
+            jwt.verify(reqToken,'superSecret', function(err, decoded) {      
+              if (err) {
+                return res.json({ success: false, message: 'Failed to authenticate token.' });    
+              } else {
+             
+                  ///test the connection with the data base
+                sequelizeConfig.authenticate() .then(function () {
+                
+                  User.findAndCountAll({
+
+                      where: {active: true},
+
+                      limit : parseInt(perPage),
+                      offset : parseInt(page) 
+
+                    }).then(function(result){
+
+                      res.send(JSON.parse(JSON.stringify(result)));
+
+                  }).catch(function (err) {
+                      var obj = '{"error": {"message":"Invalid Credentials", "code":"400" }}';
+                      res.status(400);
+                      res.send(JSON.parse(obj));
+                  });
+
+              }).catch(function (err) {
+                
+                var obj = '{"error": {"message":"Database connection not Found"}}';
+                    res.send(JSON.parse(obj));
+              
+              }).done();
+
+                }
+            });
+
+        } else {
+
+          return res.status(403).send({ 
+              success: false, 
+              message: 'No token provided.' 
+          });
+        }
+
+
+  },
+
+  getAllDisabledUsers: function (req, res, next){
+
+    var page = req.param("page");
+    var perPage = req.param("perPage");
+    var reqToken = req.get("token");
+    
+  
+    if (reqToken) {
+          // verifies secret and checks exp
+            jwt.verify(reqToken,'superSecret', function(err, decoded) {      
+              if (err) {
+                return res.json({ success: false, message: 'Failed to authenticate token.' });    
+              } else {
+             
+                  ///test the connection with the data base
+                sequelizeConfig.authenticate() .then(function () {
+                
+                  User.findAndCountAll({
+
+                      where: {active: false},
+
+                      limit : parseInt(perPage),
+                      offset : parseInt(page) 
+
+                    }).then(function(result){
+
+                      res.send(JSON.parse(JSON.stringify(result)));
+
+                  }).catch(function (err) {
+                      var obj = '{"error": {"message":"Invalid Credentials", "code":"400" }}';
+                      res.status(400);
+                      res.send(JSON.parse(obj));
+                  });
+
+              }).catch(function (err) {
+                
+                var obj = '{"error": {"message":"Database connection not Found"}}';
+                    res.send(JSON.parse(obj));
+              
+              }).done();
+
+                }
+            });
+
+        } else {
+
+          return res.status(403).send({ 
+              success: false, 
+              message: 'No token provided.' 
+          });
+        }
+
   }
-  
+
 
 }
