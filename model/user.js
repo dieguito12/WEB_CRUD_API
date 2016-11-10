@@ -229,8 +229,7 @@ module.exports = {
 
   getAllUsers: function (req, res, next){
 
-    var page = req.param("page");
-    var perPage = req.param("perPage");
+
     var reqToken = req.get("token");
     
     if (reqToken) {
@@ -244,9 +243,6 @@ module.exports = {
                 sequelizeConfig.authenticate() .then(function () {
                 
                   User.findAndCountAll({
-
-                      limit : parseInt(perPage),
-                      offset : parseInt(page) 
 
                     }).then(function(result){
 
@@ -280,11 +276,8 @@ module.exports = {
 
   getAllEnabledUsers: function (req, res, next){
 
-    var page = req.param("page");
-    var perPage = req.param("perPage");
     var reqToken = req.get("token");
     
-  
     if (reqToken) {
           // verifies secret and checks exp
             jwt.verify(reqToken,'superSecret', function(err, decoded) {      
@@ -297,10 +290,7 @@ module.exports = {
                 
                   User.findAndCountAll({
 
-                      where: {active: true},
-
-                      limit : parseInt(perPage),
-                      offset : parseInt(page) 
+                      where: {active: true}
 
                     }).then(function(result){
 
@@ -335,8 +325,6 @@ module.exports = {
 
   getAllDisabledUsers: function (req, res, next){
 
-    var page = req.param("page");
-    var perPage = req.param("perPage");
     var reqToken = req.get("token");
     
   
@@ -352,10 +340,7 @@ module.exports = {
                 
                   User.findAndCountAll({
 
-                      where: {active: false},
-
-                      limit : parseInt(perPage),
-                      offset : parseInt(page) 
+                      where: {active: false}
 
                     }).then(function(result){
 
