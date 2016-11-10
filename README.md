@@ -1,2 +1,2 @@
-# WEB_CRUD_js
-Technologies:  Client(HTML5, Bootstrap), API(NodeJs, Express, WebToken, Sequelize ) &amp; DBMS(MySql) 
+# WEB_CRUD_API
+Technologies: Sever layer(NodeJs, Express, WebToken, Sequelize ) &amp; DBMS layer(MySql) 
