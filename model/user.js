@@ -167,15 +167,10 @@ module.exports = {
 
   postActivateUser: function (req, res, next){
     
-
-    var ids = req.body.ids;
-
-    var idArray = ids.split(",");
-    console.log(idArray);
+    var bId = req.body.id;
 
     var reqToken = req.body.token;
     
-
     if (reqToken) {
           // verifies secret and checks exp
             jwt.verify(reqToken,'superSecret', function(err, decoded) {      
@@ -191,12 +186,12 @@ module.exports = {
                     active: true,
                     }, {
                       where: {
-                        id: idArray,
+                        id: bId,
                         active: false
                       }
                     }).then(function(result){
 
-                      var obj = '{"data": {"message":"Users updated"}}';
+                      var obj = '{"data": {"message":"User Enabled"}}';
                       res.status(200);
                       res.send(JSON.parse(obj));
 
@@ -225,6 +220,63 @@ module.exports = {
         }
   
   },
+
+  postDisableUser: function (req, res, next){
+    
+    var bId = req.body.id;
+
+    var reqToken = req.body.token;
+    
+    if (reqToken) {
+          // verifies secret and checks exp
+            jwt.verify(reqToken,'superSecret', function(err, decoded) {      
+              if (err) {
+                return res.json({ success: false, message: 'Failed to authenticate token.' });    
+              } else {
+             
+                  ///test the connection with the data base
+                sequelizeConfig.authenticate() .then(function () {
+                
+                  User.update({
+
+                    active: false,
+                    }, {
+                      where: {
+                        id: bId,
+                        active: true
+                      }
+                    }).then(function(result){
+
+                      var obj = '{"data": {"message":"User Disabled"}}';
+                      res.status(200);
+                      res.send(JSON.parse(obj));
+
+                  }).catch(function (err) {
+                      var obj = '{"error": {"message":"Invalid Credentials", "code":"400" }}';
+                      res.status(400);
+                      res.send(JSON.parse(obj));
+                  });
+
+              }).catch(function (err) {
+                
+                var obj = '{"error": {"message":"Database connection not Found"}}';
+                    res.send(JSON.parse(obj));
+              
+              }).done();
+
+                }
+            });
+
+        } else {
+
+          return res.status(403).send({ 
+              success: false, 
+              message: 'No token provided.' 
+          });
+        }
+  
+  },
+
 
 
   getAllUsers: function (req, res, next){
