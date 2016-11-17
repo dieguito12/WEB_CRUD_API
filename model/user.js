@@ -4,6 +4,9 @@ var jwt = require('jsonwebtoken');
 var Sequelize = require('sequelize');
 var sequelizeConfig = require('.././database/config');
 
+var nodemailer = require('nodemailer');
+var sgTransport = require('nodemailer-sendgrid-transport');
+
 
 var User = sequelizeConfig.define('users', {
 
@@ -53,6 +56,36 @@ var User = sequelizeConfig.define('users', {
   timestamps: false
 });
 
+
+function sendMail(user){
+
+var client = nodemailer.createTransport({
+  service: 'SendGrid',
+  auth: {
+    user: 'dieguito12',
+    pass: 'donkingkong12'
+  }
+});
+
+
+  var email = {
+    from: 'webcrud@bar.com',
+    to: user.mail,
+    subject: 'welcome to web crud',
+    text: 'you are registered',
+  };
+
+  client.sendMail(email, function(err, info){
+      if (err ){
+        console.log(err);
+      }
+      else {
+        console.log('Message sent: ' + info.response);
+      }
+  });
+
+}
+
 module.exports = {
 
   postRegister: function (req, res, next){
@@ -93,6 +126,8 @@ module.exports = {
 
           }).then(function(result){
           
+            sendMail(bodyUser);
+
             var obj = '{"data": {"message":"User created"}}';
             res.status(200);
             res.send(JSON.parse(obj));

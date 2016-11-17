@@ -14,6 +14,5 @@ router.post('/register', usermodel.postRegister);
 router.post('/activateUser', usermodel.postActivateUser);
 router.post('/disableUser', usermodel.postDisableUser);
 
-
 module.exports = router;
 
